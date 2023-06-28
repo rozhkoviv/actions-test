@@ -1,0 +1,14 @@
+name: Test3
+
+on:
+  repository_dispatch:
+    types:
+      - run_tests
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Test 3
+      run: |
+        echo "${{ github.event.client_payload.stage_server }}"

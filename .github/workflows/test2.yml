@@ -37,13 +37,13 @@
                 fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/run_tests_flag.zip`, Buffer.from(download.data));
               }
         - name: 'Extract flag'
-          id: flagcheck
+          id: flag-check
           run: |
             tests=false
             test -f run_tests_flag.zip && unzip run_tests_flag.zip && value=`cat run_tests_flag`
             echo "tests=$value" >> "$GITHUB_OUTPUT"
         - name: Tests start
-          if: steps.flagcheck.outputs.tests == 'true'
+          if: steps.flag-check.outputs.tests == 'true'
           run: |
             value=`cat run_tests_flag`
             echo $value

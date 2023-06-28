@@ -22,19 +22,27 @@
     env_var: TEST_VAR_1=${{ github.event.inputs.run_tests }}
 
   jobs:
-    build:
+    # build:
+    #   runs-on: ubuntu-latest
+    #   steps:
+    #   - shell: bash
+    #     run: |
+    #       echo ${{ github.event.inputs.run_tests }} > ./run_tests_flag
+    #   - name: Store run_tests flag
+    #     uses: actions/upload-artifact@v3
+    #     with:
+    #       name: run_tests_flag
+    #       path: ./
+    #   - name: Checkout repository
+    #     env:
+    #       GITHUB_CONTEXT: ${{ toJson(env) }}
+    #     run: |
+    #       echo "$GITHUB_CONTEXT"
+    tests:
       runs-on: ubuntu-latest
       steps:
-      - shell: bash
-        run: |
-          echo ${{ github.event.inputs.run_tests }} > ./run_tests_flag
-      - name: Store run_tests flag
-        uses: actions/upload-artifact@v3
+      - name: Trigger Action B
+        uses: peter-evans/repository-dispatch@v2
         with:
-          name: run_tests_flag
-          path: ./
-      - name: Checkout repository
-        env:
-          GITHUB_CONTEXT: ${{ toJson(env) }}
-        run: |
-          echo "$GITHUB_CONTEXT"
+          event-type: run_tests
+          client-payload: '{ "stage_server": "stage_1" }'
