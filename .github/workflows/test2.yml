@@ -15,28 +15,39 @@
       runs-on: ubuntu-latest
       steps:
         - name: 'Download flag'
+          id: download
           uses: actions/github-script@v6
           with:
             script: |
-              let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              const allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
                  owner: context.repo.owner,
                  repo: context.repo.repo,
                  run_id: context.payload.workflow_run.id,
-              });
-              let flagArtifact = allArtifacts.data.artifacts.find((artifact) => {
+              })
+              const flagArtifact = allArtifacts.data.artifacts.find((artifact) => {
                 return artifact.name == "run_tests_flag"
-              });
-              let download = await github.rest.actions.downloadArtifact({
+              })
+              if (!flagArtifact) {
+                echo "skip=true" >> "$GITHUB_OUTPUT"
+                return
+              }
+              const download = await github.rest.actions.downloadArtifact({
                  owner: context.repo.owner,
                  repo: context.repo.repo,
                  artifact_id: flagArtifact.id,
                  archive_format: 'zip',
-              });
-              let fs = require('fs');
+              })
+              const fs = require('fs')
               fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/run_tests_flag.zip`, Buffer.from(download.data));
         - name: 'Unzip flag'
-          run: unzip run_tests_flag.zip   
+          id: flagcheck
+          if: '!steps.download.outputs.skip'
+          run: |
+            unzip run_tests_flag.zip
+            value=`cat run_tests_flag`
+            echo "skip=$value" >> "$GITHUB_OUTPUT"
         - name: Tests start
+          if: '!steps.flagcheck.outputs.skip'
           run: |
             value=`cat run_tests_flag`
             echo $value
