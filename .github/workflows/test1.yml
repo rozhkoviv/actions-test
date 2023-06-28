@@ -18,11 +18,17 @@
           required: false
           default: false
 
+  env:
+    env_var: TEST_VAR_1=${{ github.event.inputs.run_tests }}
+
   jobs:
     build:
       runs-on: ubuntu-latest
   
       steps:
       - name: Checkout repository
-        run: exit 0
+        env:
+          GITHUB_CONTEXT: ${{ toJson(env) }}
+        run: |
+          echo "$GITHUB_CONTEXT"
   

@@ -12,6 +12,6 @@
       steps:
         - name: Tests start
           env:
-            GITHUB_CONTEXT: ${{ toJson(github) }}
+            GITHUB_CONTEXT: ${{ toJson(env) }}
           run: |
             echo "$GITHUB_CONTEXT"
