@@ -1,0 +1,15 @@
+  name: Test2
+
+  on:
+    workflow_run:
+      workflows: [Test1]
+      types:
+        - completed
+
+  jobs:
+    run_test:
+      if: github.event.inputs.run_tests == 'true'
+      runs-on: ubuntu-latest
+      steps:
+        - name: Tests start
+          run: exit 0

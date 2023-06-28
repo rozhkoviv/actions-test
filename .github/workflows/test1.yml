@@ -13,7 +13,7 @@
             - '2'
             - '3'
         run_tests:
-          description: Run tests after deploy
+          description: Run tests
           type: boolean
           required: false
           default: false
@@ -24,18 +24,5 @@
   
       steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        run: exit 0
   
-      - name: Run Action A
-        run: |
-          # Run your logic for actionA
-          # Collect the required parameters (e.g., BRANCH_NAME and STAGE_SERVER)
-          # Set them as environment variables using `echo` command
-          echo "STAGE=${{ github.event.inputs.stage }}" >> $GITHUB_ENV
-          echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
-  
-      - name: Trigger Action B
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          event-type: actionB
-          client-payload: '{"branch_name": "${{ env.BRANCH_NAME }}", "stage_server": "${{ env.STAGE }}" }'
