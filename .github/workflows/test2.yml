@@ -12,7 +12,7 @@
       steps:
         - name: Tests start
           env:
-            GITHUB_CONTEXT: ${{ toJson(github.event.workflow_run) }}
+            GITHUB_CONTEXT: ${{ toJson(github.event.client) }}
             TEST: ${{ github.event.inputs.run_tests }}
           run: |
-            echo "$GITHUB_CONTEXT"
+            echo ${{ github.event.workflow_run.conclusion }}
