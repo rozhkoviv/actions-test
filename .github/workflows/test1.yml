@@ -18,16 +18,23 @@
           required: false
           default: false
 
+  env:
+    env_var: TEST_VAR_1=${{ github.event.inputs.run_tests }}
+
   jobs:
     build:
       runs-on: ubuntu-latest
-  
       steps:
-      - name: Run Action A
-        run: exit 0
-    run_tests:
-      if: github.event.inputs.run_tests == 'true'
-      name: Start tests
-      uses: peter-evans/repository-dispatch@v2
-      with:
-        event-type: stage_tests
+      - shell: bash
+        run: |
+          echo ${{ github.event.inputs.run_tests }} > run_tests_flag
+      - name: Store run_tests flag
+        uses: actions/upload-artifact@v3
+        with:
+          name: run_tests
+          path: run_tests_flag
+      - name: Checkout repository
+        env:
+          GITHUB_CONTEXT: ${{ toJson(env) }}
+        run: |
+          echo "$GITHUB_CONTEXT"

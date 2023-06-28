@@ -1,15 +1,35 @@
   name: Test2
 
   on:
-    repository_dispatch:
+    workflow_run:
+      workflows: [Test1]
       types:
-        - stage_tests
-        
+        - completed
 
   jobs:
     run_test:
       runs-on: ubuntu-latest
       steps:
+        - name: 'Download flag'
+          uses: actions/github-script@v6
+          with:
+            script: |
+              let allArtifacts = await github.rest.actions.listWorkflowRunArtifacts({
+                 owner: context.repo.owner,
+                 repo: context.repo.repo,
+                 run_id: context.payload.workflow_run.id,
+              });
+              let flagArtifact = allArtifacts.data.artifacts.find((artifact) => {
+                return artifact.name == "run_tests"
+              });
+              let download = await github.rest.actions.downloadArtifact({
+                 owner: context.repo.owner,
+                 repo: context.repo.repo,
+                 artifact_id: flagArtifact.id,
+              });
+              let fs = require('fs');
+              fs.writeFileSync(`${process.env.GITHUB_WORKSPACE}/run_tests`, Buffer.from(download.data));
         - name: Tests start
           run: |
-            echo ${{ toJson(github) }}
+            value=`cat run_tests`
+            echo $value
