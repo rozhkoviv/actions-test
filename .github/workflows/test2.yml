@@ -1,18 +1,15 @@
   name: Test2
 
   on:
-    workflow_run:
-      workflows: [Test1]
+    repository_dispatch:
       types:
-        - completed
+        - stage_tests
+        
 
   jobs:
     run_test:
       runs-on: ubuntu-latest
       steps:
         - name: Tests start
-          env:
-            GITHUB_CONTEXT: ${{ toJson(github.event.client) }}
-            TEST: ${{ github.event.inputs.run_tests }}
           run: |
-            echo ${{ github.event.workflow_run.conclusion }}
+            echo ${{ toJson(github) }}
