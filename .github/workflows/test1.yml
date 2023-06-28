@@ -27,12 +27,12 @@
       steps:
       - shell: bash
         run: |
-          echo ${{ github.event.inputs.run_tests }} > run_tests_flag
+          echo ${{ github.event.inputs.run_tests }} > ./run_tests_flag
       - name: Store run_tests flag
         uses: actions/upload-artifact@v3
         with:
           name: run_tests_flag
-          path: /
+          path: ./
       - name: Checkout repository
         env:
           GITHUB_CONTEXT: ${{ toJson(env) }}
