@@ -39,11 +39,11 @@
         - name: 'Extract flag'
           id: flagcheck
           run: |
-            value=true
+            tests=false
             test -f run_tests_flag.zip && unzip run_tests_flag.zip && value=`cat run_tests_flag`
-            echo "skip=$value" >> "$GITHUB_OUTPUT"
+            echo "tests=$value" >> "$GITHUB_OUTPUT"
         - name: Tests start
-          if: '!steps.flagcheck.outputs.skip'
+          if: steps.flagcheck.outputs.tests == 'true'
           run: |
             value=`cat run_tests_flag`
             echo $value
