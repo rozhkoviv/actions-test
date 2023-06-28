@@ -12,6 +12,8 @@
       steps:
         - name: Tests start
           env:
-            GITHUB_CONTEXT: ${{ toJson(env) }}
+            GITHUB_CONTEXT: ${{ toJson(github.event.workflow_run) }}
+            TEST: ${{ github.event.inputs.run_tests }}
           run: |
-            echo "$GITHUB_CONTEXT"
+            echo "$GITHUB_CONTEXT" |
+            echo "$TEST"
