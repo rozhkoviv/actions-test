@@ -47,4 +47,11 @@
           run: |
             value=`cat run_tests_flag`
             echo $value
+
+    test:
+      if: false
+      runs-on: ubuntu-latest
+      steps:
+        - name: 'exmaple'
+          run: echo '12'
         
