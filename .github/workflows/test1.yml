@@ -23,16 +23,8 @@
       runs-on: ubuntu-latest
   
       steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
-  
       - name: Run Action A
-        run: |
-          # Run your logic for actionA
-          # Collect the required parameters (e.g., BRANCH_NAME and STAGE_SERVER)
-          # Set them as environment variables using `echo` command
-          echo "STAGE=${{ github.event.inputs.stage }}" >> $GITHUB_ENV
-          echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+        run: exit 0
     run_tests:
       if: github.event.inputs.run_tests == 'true'
       needs: [build]
