@@ -31,8 +31,8 @@
       - name: Store run_tests flag
         uses: actions/upload-artifact@v3
         with:
-          name: run_tests
-          path: run_tests_flag
+          name: run_tests_flag
+          path: /
       - name: Checkout repository
         env:
           GITHUB_CONTEXT: ${{ toJson(env) }}
