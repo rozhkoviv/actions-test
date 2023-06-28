@@ -27,7 +27,6 @@
         run: exit 0
     run_tests:
       if: github.event.inputs.run_tests == 'true'
-      needs: [build]
       name: Start tests
       uses: peter-evans/repository-dispatch@v2
       with:
