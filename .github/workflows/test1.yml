@@ -39,6 +39,7 @@
     #     run: |
     #       echo "$GITHUB_CONTEXT"
     tests:
+      if: github.event.inputs.run_tests == 'true'
       permissions: write-all
       runs-on: ubuntu-latest
       steps:
@@ -46,4 +47,4 @@
         uses: peter-evans/repository-dispatch@v2
         with:
           event-type: run_tests
-          client-payload: '{ "stage_server": "stage_1" }'
+          client-payload: '{ "env": "stage_${{ github.event.inputs.stage }}" }'
