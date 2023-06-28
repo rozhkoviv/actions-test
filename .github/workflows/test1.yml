@@ -39,6 +39,7 @@
     #     run: |
     #       echo "$GITHUB_CONTEXT"
     tests:
+      permissions: write-all
       runs-on: ubuntu-latest
       steps:
       - name: Trigger Action B
