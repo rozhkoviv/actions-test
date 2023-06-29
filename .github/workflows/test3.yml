@@ -10,6 +10,23 @@ jobs:
   tests:
     runs-on: ubuntu-latest
     steps:
+    - name: Debug
+      run: |
+        echo ${{ github }}
+    - name: Update status
+      if: github.event.client_payload.pr_number
+      uses: thollander/actions-comment-pull-request@v2
+      with:
+        pr_number: ${{ github.event.client_payload.pr_number }}
+        message: |
+          Tests running ...
     - name: Test 3
       run: |
         echo "${{ github.event.client_payload.stage_server }}"
+    - name: Update status
+      if: github.event.client_payload.pr_number
+      uses: thollander/actions-comment-pull-request@v2
+      with:
+        pr_number: ${{ github.event.client_payload.pr_number }}
+        message: |
+          Tests passed!
