@@ -1,4 +1,5 @@
 name: Test3
+run-name:  ${{ inputs.test_name || github.event.client_payload.env }}
 
 on:
   workflow_dispatch:
@@ -11,6 +12,9 @@ on:
   repository_dispatch:
     types:
       - run_tests
+
+env:
+  TEST_TEST: ${{ github.event.inputs.test_name || github.event.client_payload.env }}
 
 jobs:
   e2e_tests:
@@ -57,33 +61,42 @@ jobs:
       env:
         DEBUG_QWE: ${{ github.sha }}
       run: |
-        echo $DEBUG_QWE
-    - name: Update if success
-      if: ${{ success() }}
-      run: |
-        curl --request POST \
-        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.client_payload.sha }} \
-        --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-        --header 'content-type: application/json' \
-        --data '{
-          "context": "e2e_tests",
-          "state": "success",
-          "description": "e2e tests passed",
-          "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        }'
-    - name: Update if failure
-      if: ${{ failure() }}
-      run: |
-        curl --request POST \
-        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.client_payload.sha }} \
-        --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
-        --header 'content-type: application/json' \
-        --data '{
-          "context": "e2e_tests",
-          "state": "failure",
-          "description": "e2e tests failed",
-          "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        }'
+        echo $TEST_TEST
+  
+  update_commit_status_finish:
+    permissions: write-all
+    if: ${{ always() && github.event.client_payload.sha }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout to target
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.client_payload.sha }}
+      - name: Success
+        if: ${{ success() }}
+        id: success-commit-status
+        run:
+          echo "status=success" >> $GITHUB_OUTPUT
+      - name: Success
+        if: ${{ failure() }}
+        id: failure-commit-status
+        run:
+          echo "status=failure" >> $GITHUB_OUTPUT
+      - name: Update status
+        env:
+          COMMIT_STATUS: ${{ steps.success-commit-status.outputs.status || steps.failure-commit-status.outputs.status }}
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.client_payload.sha }} \
+          --header 'Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+          --header 'Content-Type: application/json' \
+          --data '{
+            "context": "e2e_tests",
+            "state": "${{ steps.success-commit-status.outputs.status || steps.failure-commit-status.outputs.status }}",
+            "description": "${{ steps.success-commit-status.outputs.status || steps.failure-commit-status.outputs.status }}",
+            "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }'
+      
     # - name: debug
     #   env:
     #     PR_NUMBER_TEST: ${{ steps.pr-number-parse.outputs.pr_number }}
