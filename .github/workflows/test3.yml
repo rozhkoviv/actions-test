@@ -9,19 +9,21 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
-    - name: Debug
+    - name: Get branch pull requests
       env:
-        GITHUB_CONTEXT: ${{ github.ref_name }}
+        HEAD_REF_NAME: ${{ github.ref_name}}
+        CURRENT_REPOSITORY: ${{ github.event.repository.name }}
+        CURRENT_REPOSITORY_OWNER: ${{ github.repository_owner }}
       run: |
-        echo "$GITHUB_CONTEXT"
-    - name: listPullRequests
-      uses: buildsville/list-pull-requests@v1
-      id: list
-      with:
-        token: ${{secrets.GITHUB_TOKEN}}
+        curl -X POST https://api.github.com/graphql \
+        -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+        -H "Content-Type: application/json" \
+        -d '{"query":"{repository(owner:\"${{ github.repository_owner }}\",name:\"${{ github.event.repository.name }}\"){pullRequests(first: 1,headRefName:\"${{ github.ref_name}}\",states:[OPEN]){nodes{id}}}}"}' > \
+        pulls.json
     - name: output
-      run: echo '${{ steps.list.outputs.pulls }}'
+      run: cat pulls.json
     - name: Update status
       if: github.event.client_payload.pr_number
       uses: thollander/actions-comment-pull-request@v2
@@ -36,6 +38,7 @@ jobs:
       if: github.event.client_payload.pr_number
       uses: thollander/actions-comment-pull-request@v2
       with:
+        comment_tag: e2e_tests
         pr_number: ${{ github.event.client_payload.pr_number }}
         message: |
           Tests passed!
