@@ -1,5 +1,7 @@
 name: Test3
 
+run-name:  ${{ inputs.test_name || 'WTF' }}
+
 on:
   workflow_dispatch:
     inputs:
@@ -11,6 +13,9 @@ on:
   repository_dispatch:
     types:
       - run_tests
+
+env:
+  TEST_TEST: ${{ github.event.inputs.test_name || 'TEST_TEST' }}
 
 jobs:
   e2e_tests:
