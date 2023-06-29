@@ -27,46 +27,9 @@ jobs:
           "description": "e2e tests pending...",
           "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         }'
-    - name: Get branch pull requests
-      env:
-        HEAD_REF_NAME: ${{ github.ref_name}}
-        CURRENT_REPOSITORY: ${{ github.event.repository.name }}
-        CURRENT_REPOSITORY_OWNER: ${{ github.repository_owner }}
-      run: |
-        curl -X POST https://api.github.com/graphql \
-        -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-        -H "Content-Type: application/json" \
-        -d '{"query":"{repository(owner:\"${{ github.repository_owner }}\",name:\"${{ github.event.repository.name }}\"){pullRequests(first: 1,headRefName:\"${{ github.ref_name}}\",states:[OPEN],orderBy:{field:CREATED_AT, direction:DESC}){nodes{number}}}}"}' > \
-        pulls.json
-    - name: Parse pull requests
-      id: pr-number-parse
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const pulls = require('./pulls.json')
-          const lastPull = pulls.data.repository.pullRequests.nodes.shift()
-          if (lastPull) {
-            core.setOutput('pr_number', String(lastPull.number))
-          }
-    - name: Update status
-      if: steps.pr-number-parse.outputs.pr_number
-      uses: thollander/actions-comment-pull-request@v2
-      with:
-        comment_tag: e2e_tests_comment
-        pr_number: ${{ steps.pr-number-parse.outputs.pr_number }}
-        message: |
-          Tests running ...
     - name: Test 3
       run: |
         echo "${{ github.event.client_payload.env }}"
-    - name: Update status
-      if: steps.pr-number-parse.outputs.pr_number
-      uses: thollander/actions-comment-pull-request@v2
-      with:
-        comment_tag: e2e_tests_comment
-        pr_number: ${{ steps.pr-number-parse.outputs.pr_number }}
-        message: |
-          Tests passed!
     - name: PRINT DEBUG
       env:
         DEBUG_QWE: ${{ github.sha }}
@@ -98,3 +61,41 @@ jobs:
           "description": "e2e tests failed",
           "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         }'
+    - name: Checkout to master
+      uses: actions/checkout@v3
+      with:
+        ref: 'master'
+    - name: Get branch pull requests
+      run: |
+        curl -X POST https://api.github.com/graphql \
+        -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+        -H "Content-Type: application/json" \
+        -d '{"query":"{repository(owner:\"${{ github.repository_owner }}\",name:\"${{ github.event.repository.name }}\"){pullRequests(first: 1,headRefName:\"${{ github.ref_name}}\",states:[OPEN],orderBy:{field:CREATED_AT, direction:DESC}){nodes{number}}}}"}' > \
+        pulls.json
+    - name: Parse pull requests
+      id: pr-number-parse
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const pulls = require('./pulls.json')
+          const lastPull = pulls.data.repository.pullRequests.nodes.shift()
+          if (lastPull) {
+            core.setOutput('pr_number', String(lastPull.number))
+          }
+    - name: Update comment on success
+      if: steps.pr-number-parse.outputs.pr_number && ${{ success() }}
+      uses: thollander/actions-comment-pull-request@v2
+      with:
+        comment_tag: e2e_tests_comment
+        pr_number: ${{ steps.pr-number-parse.outputs.pr_number }}
+        message: |
+          Tests passed!
+    - name: Update comment on failure
+      if: steps.pr-number-parse.outputs.pr_number && ${{ failure() }}
+      uses: thollander/actions-comment-pull-request@v2
+      with:
+        comment_tag: e2e_tests_comment
+        pr_number: ${{ steps.pr-number-parse.outputs.pr_number }}
+        message: |
+          Tests failed!
+        
