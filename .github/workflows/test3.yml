@@ -48,7 +48,7 @@ jobs:
       if: steps.pr-number-parse.outputs.pr_number
       uses: thollander/actions-comment-pull-request@v2
       with:
-        comment_tag: e2e_tests_com
+        comment_tag: e2e_tests_comment
         pr_number: ${{ steps.pr-number-parse.outputs.pr_number }}
         message: |
           Tests running ...
@@ -59,7 +59,7 @@ jobs:
       if: steps.pr-number-parse.outputs.pr_number
       uses: thollander/actions-comment-pull-request@v2
       with:
-        comment_tag: e2e_tests
+        comment_tag: e2e_tests_comment
         pr_number: ${{ steps.pr-number-parse.outputs.pr_number }}
         message: |
           Tests passed!
@@ -72,7 +72,7 @@ jobs:
         --header 'content-type: application/json' \
         --data '{
           "context": "e2e_tests",
-          "state": "success",
+          "state": "skipped",
           "description": "e2e tests passed",
           "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         }'
