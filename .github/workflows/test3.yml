@@ -81,7 +81,7 @@ jobs:
     - name: debug
       env:
         PR_NUMBER_TEST: ${{ steps.pr-number-parse.outputs.pr_number }}
-      run: \
+      run: |
         echo $PR_NUMBER_TEST
     - name: Update comment on success
       if: steps.pr-number-parse.outputs.pr_number && ${{ success() }}
