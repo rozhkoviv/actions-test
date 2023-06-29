@@ -1,6 +1,5 @@
 name: Test3
-
-run-name:  ${{ inputs.test_name || 'WTF' }}
+run-name:  ${{ inputs.test_name || github.event.client_payload.env }}
 
 on:
   workflow_dispatch:
