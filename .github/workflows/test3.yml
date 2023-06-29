@@ -15,6 +15,26 @@ jobs:
         GITHUB_CONTEXT: ${{ github.ref_name }}
       run: |
         echo "$GITHUB_CONTEXT"
+    # - name: Get branch pull requests
+    #   run: |
+    #     curl \
+    #       -Hhttps://api.github.com/repos/codecombat/codecombat/pulls?base=master > \
+    #     pulls.json
+    - name: 'Get pulls'
+      id: get-pulls
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const list = await github.pulls.list({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+          })
+          core.setOutput("pulls", JSON.stringify(list))
+    - name: Test
+      env:
+        TEST_TEST: ${{ steps.get-pulls.outputs.pulls }}
+      run: |
+        echo "$TEST_TEST"
     - name: Update status
       if: github.event.client_payload.pr_number
       uses: thollander/actions-comment-pull-request@v2
