@@ -17,7 +17,7 @@ jobs:
         CURRENT_REPOSITORY: ${{ github.event.repository.name }}
         CURRENT_REPOSITORY_OWNER: ${{ github.repository_owner }}
       run: |
-        curl --trace -X POST https://api.github.com/graphql \
+        curl -X POST https://api.github.com/graphql \
         -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
         -H "Content-Type: application/json" \
         -d '{"query":"{repository(owner:\"${{ github.repository_owner }}\",name:\"${{ github.event.repository.name }}\"){pullRequests(first: 1,headRefName:\"${{ github.ref_name}}\",states:[OPEN]){nodes{id}}}}"}' > \
