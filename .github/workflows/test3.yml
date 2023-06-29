@@ -63,6 +63,11 @@ jobs:
         pr_number: ${{ steps.pr-number-parse.outputs.pr_number }}
         message: |
           Tests passed!
+    - name: PRINT DEBUG
+      env:
+        DEBUG_QWE: ${{ github.sha }}
+      run: |
+        echo $DEBUG_QWE
     - name: Update if success
       if: ${{ success() }}
       run: |
