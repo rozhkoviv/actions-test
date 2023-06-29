@@ -1,50 +1,50 @@
 
-  name: Test1
+name: Test1
 
-  on:
-    workflow_dispatch:
-      inputs:
-        stage:
-          description: Stage number
-          required: true
-          type: choice
-          options:
-            - '1'
-            - '2'
-            - '3'
-        run_tests:
-          description: Run tests
-          type: boolean
-          required: false
-          default: false
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: Stage number
+        required: true
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - '3'
+      run_tests:
+        description: Run tests
+        type: boolean
+        required: false
+        default: false
 
-  env:
-    env_var: TEST_VAR_1=${{ github.event.inputs.run_tests }}
+env:
+  env_var: TEST_VAR_1=${{ github.event.inputs.run_tests }}
 
-  jobs:
-    # build:
-    #   runs-on: ubuntu-latest
-    #   steps:
-    #   - shell: bash
-    #     run: |
-    #       echo ${{ github.event.inputs.run_tests }} > ./run_tests_flag
-    #   - name: Store run_tests flag
-    #     uses: actions/upload-artifact@v3
-    #     with:
-    #       name: run_tests_flag
-    #       path: ./
-    #   - name: Checkout repository
-    #     env:
-    #       GITHUB_CONTEXT: ${{ toJson(env) }}
-    #     run: |
-    #       echo "$GITHUB_CONTEXT"
-    run_tests:
-      if: github.event.inputs.run_tests == 'true'
-      permissions: write-all
-      runs-on: ubuntu-latest
-      steps:
-      - name: Trigger Action B
-        uses: peter-evans/repository-dispatch@v2
-        with:
-          event-type: run_tests
-          client-payload: '{ "env": "stage_${{ github.event.inputs.stage }}" }'
+jobs:
+  # build:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - shell: bash
+  #     run: |
+  #       echo ${{ github.event.inputs.run_tests }} > ./run_tests_flag
+  #   - name: Store run_tests flag
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: run_tests_flag
+  #       path: ./
+  #   - name: Checkout repository
+  #     env:
+  #       GITHUB_CONTEXT: ${{ toJson(env) }}
+  #     run: |
+  #       echo "$GITHUB_CONTEXT"
+  run_tests:
+    if: github.event.inputs.run_tests == 'true'
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+    - name: Trigger Action B
+      uses: peter-evans/repository-dispatch@v2
+      with:
+        event-type: run_tests
+        client-payload: '{ "env": "stage_${{ github.event.inputs.stage }}", "sha": "${{ github.sha }}" }'
