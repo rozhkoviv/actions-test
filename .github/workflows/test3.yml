@@ -63,9 +63,12 @@ jobs:
       run: |
         exit 1
     - name: Set flag on failure
+      id: failure
       if: ${{ failure() }}
       run: |
-        echo "failed=failed" >> $GITHUB_OUTPUT
+        echo "failed=true" >> $GITHUB_OUTPUT
+    outputs:
+      failed: ${{ steps.failure.outputs.failed }}
   
   update_commit_status_finish:
     needs: [e2e_tests]
@@ -85,8 +88,8 @@ jobs:
           --header 'Content-Type: application/json' \
           --data '{
             "context": "e2e_tests",
-            "state": "${{ needs.e2e_tests.outputs.failed || 'success' }}",
-            "description": "${{ needs.e2e_tests.outputs.failed || 'success' }}",
+            "state": "${{ (needs.e2e_tests.outputs.failed && 'failure') || 'success' }}",
+            "description": "${{ (needs.e2e_tests.outputs.failed && 'failure') || 'success' }}",
             "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           }'
       
