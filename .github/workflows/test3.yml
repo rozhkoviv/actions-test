@@ -18,9 +18,9 @@ jobs:
         --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
         --header 'content-type: application/json' \
         --data '{
-          "context": "tests",
+          "context": "e2e_tests",
           "state": "pending",
-          "description": "Staging tests passed",
+          "description": "e2e tests pending...",
           "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         }'
     - name: Get branch pull requests
@@ -48,7 +48,7 @@ jobs:
       if: steps.pr-number-parse.outputs.pr_number
       uses: thollander/actions-comment-pull-request@v2
       with:
-        comment_tag: e2e_tests
+        comment_tag: e2e_tests_comment
         pr_number: ${{ steps.pr-number-parse.outputs.pr_number }}
         message: |
           Tests running ...
@@ -71,9 +71,9 @@ jobs:
         --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
         --header 'content-type: application/json' \
         --data '{
-          "context": "tests",
+          "context": "e2e_tests",
           "state": "success",
-          "description": "Staging tests passed",
+          "description": "e2e tests passed",
           "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         }'
     - name: Update if failure
@@ -84,8 +84,8 @@ jobs:
         --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
         --header 'content-type: application/json' \
         --data '{
-          "context": "tests",
+          "context": "e2e_tests",
           "state": "failure",
-          "description": "Staging tests passed",
+          "description": "e2e tests failed",
           "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         }'
