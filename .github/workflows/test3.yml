@@ -64,6 +64,7 @@ jobs:
         echo $TEST_TEST
   
   update_commit_status_finish:
+    needs: [e2e_tests]
     permissions: write-all
     if: ${{ always() && github.event.client_payload.sha }}
     runs-on: ubuntu-latest
