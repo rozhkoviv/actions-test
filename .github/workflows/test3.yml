@@ -20,7 +20,7 @@ jobs:
         curl -X POST https://api.github.com/graphql \
         -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
         -H "Content-Type: application/json" \
-        -d '{"query":"{repository(owner:\"${{ github.repository_owner }}\",name:\"${{ github.event.repository.name }}\"){pullRequests(first: 1,headRefName:\"${{ github.ref_name}}\",states:[OPEN]){nodes{id}}}}"}' > \
+        -d '{"query":"{repository(owner:\"${{ github.repository_owner }}\",name:\"${{ github.event.repository.name }}\"){pullRequests(first: 1,headRefName:\"${{ github.ref_name}}\",states:[OPEN]){nodes{number}}}}"}' > \
         pulls.json
     - name: output
       run: cat pulls.json
@@ -35,10 +35,10 @@ jobs:
       run: |
         echo "${{ github.event.client_payload.env }}"
     - name: Update status
-      if: github.event.client_payload.pr_number
+      # if: github.event.client_payload.pr_number
       uses: thollander/actions-comment-pull-request@v2
       with:
         comment_tag: e2e_tests
-        pr_number: ${{ github.event.client_payload.pr_number }}
+        pr_number: 1
         message: |
           Tests passed!
