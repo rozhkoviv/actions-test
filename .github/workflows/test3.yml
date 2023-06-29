@@ -16,13 +16,19 @@ jobs:
         GITHUB_CONTEXT: ${{ github.ref_name }}
       run: |
         echo "$GITHUB_CONTEXT"
-    - name: listPullRequests
-      uses: buildsville/list-pull-requests@v1
-      id: list
-      with:
-        token: ${{secrets.GITHUB_TOKEN}}
+    - name: List branch pull requests
+      env:
+        HEAD_REF_NAME: ${{ github.ref_name}}
+        CURRENT_REPOSITORY: ${{ github.repository }}
+      run: |
+        curl \
+        -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+        -H "Accept: application/vnd.github+json" \
+        -H "Content-Type: application/json" \
+        https://api.github.com/repos/"$CURRENT_REPOSITORY"/pulls?head="$HEAD_REF_NAME" > \
+        pulls.json
     - name: output
-      run: echo '${{ steps.list.outputs.pulls }}'
+      run: cat pulls.json
     - name: Update status
       if: github.event.client_payload.pr_number
       uses: thollander/actions-comment-pull-request@v2
