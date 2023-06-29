@@ -2,6 +2,12 @@ name: Test3
 
 on:
   workflow_dispatch:
+    inputs:
+      test_name:
+        type: string
+        description: 'OKEOKE'
+        required: false
+        default: 'TESTNAME_1'
   repository_dispatch:
     types:
       - run_tests
@@ -46,7 +52,7 @@ jobs:
         }'
     - name: Test 3
       run: |
-        echo "${{ github.event.client_payload.env }}"
+        echo "${{ github.action.inputs.test_name }}"
     - name: PRINT DEBUG
       env:
         DEBUG_QWE: ${{ github.sha }}
