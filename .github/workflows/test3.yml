@@ -52,7 +52,7 @@ jobs:
         }'
     - name: Test 3
       run: |
-        echo "${{ github.action.inputs.test_name }}"
+        echo "${{ inputs.test_name }}"
     - name: PRINT DEBUG
       env:
         DEBUG_QWE: ${{ github.sha }}
