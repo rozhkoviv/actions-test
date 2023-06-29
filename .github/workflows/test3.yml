@@ -14,7 +14,7 @@ on:
       - run_tests
 
 env:
-  TEST_TEST: ${{ github.event.inputs.test_name || 'TEST_TEST' }}
+  TEST_TEST: ${{ github.event.inputs.test_name || github.event.client_payload.env }}
 
 jobs:
   e2e_tests:
@@ -61,7 +61,7 @@ jobs:
       env:
         DEBUG_QWE: ${{ github.sha }}
       run: |
-        echo $DEBUG_QWE
+        echo $TEST_TEST
     - name: Update if success
       if: ${{ success() }}
       run: |
