@@ -61,7 +61,7 @@ jobs:
         --header 'content-type: application/json' \
         --data '{
           "context": "e2e_tests",
-          "state": "success",
+          "state": "pending",
           "description": "e2e tests passed",
           "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         }'
