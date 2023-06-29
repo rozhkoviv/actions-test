@@ -11,10 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
+    - name: Checkout to target
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.client_payload.sha }}
     - name: Update check status
       run: |
         curl --request POST \
-        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.client_payload.sha }} \
         --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
         --header 'content-type: application/json' \
         --data '{
@@ -48,7 +52,7 @@ jobs:
       if: steps.pr-number-parse.outputs.pr_number
       uses: thollander/actions-comment-pull-request@v2
       with:
-        comment_tag: e2e_tests_com
+        comment_tag: e2e_tests_comment
         pr_number: ${{ steps.pr-number-parse.outputs.pr_number }}
         message: |
           Tests running ...
@@ -59,15 +63,20 @@ jobs:
       if: steps.pr-number-parse.outputs.pr_number
       uses: thollander/actions-comment-pull-request@v2
       with:
-        comment_tag: e2e_tests
+        comment_tag: e2e_tests_comment
         pr_number: ${{ steps.pr-number-parse.outputs.pr_number }}
         message: |
           Tests passed!
+    - name: PRINT DEBUG
+      env:
+        DEBUG_QWE: ${{ github.sha }}
+      run: |
+        echo $DEBUG_QWE
     - name: Update if success
       if: ${{ success() }}
       run: |
         curl --request POST \
-        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.client_payload.sha }} \
         --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
         --header 'content-type: application/json' \
         --data '{
@@ -80,7 +89,7 @@ jobs:
       if: ${{ failure() }}
       run: |
         curl --request POST \
-        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.client_payload.sha }} \
         --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
         --header 'content-type: application/json' \
         --data '{
