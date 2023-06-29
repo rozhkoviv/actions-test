@@ -38,7 +38,7 @@
     #       GITHUB_CONTEXT: ${{ toJson(env) }}
     #     run: |
     #       echo "$GITHUB_CONTEXT"
-    tests:
+    run_tests:
       if: github.event.inputs.run_tests == 'true'
       permissions: write-all
       runs-on: ubuntu-latest
