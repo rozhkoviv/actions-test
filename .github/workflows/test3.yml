@@ -64,7 +64,7 @@ jobs:
       env:
         DEBUG_QWE: ${{ github.sha }}
       run: |
-        echo true
+        exit 1
     - id: store-failed-flag
       if: ${{ failure() }}
       run: |
