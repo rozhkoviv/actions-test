@@ -21,14 +21,16 @@ jobs:
         -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
         -H "Content-Type: application/json" \
         --data-raw '{
-          query{
-            repository(owner:""$CURRENT_REPOSITORY_OWNER"", name:""$CURRENT_REPOSITORY"") {
-              pullRequests (first: 1, headRefName:""$HEAD_REF_NAME", states:[OPEN]) {
-                nodes {
-                  id
+          "query":
+            "query{
+              repository(owner:\""$CURRENT_REPOSITORY_OWNER"\", name:\""$CURRENT_REPOSITORY"\") {
+                pullRequests (first: 1, headRefName:\""$HEAD_REF_NAME"\", states:[OPEN]) {
+                  nodes {
+                    id
+                  }
                 }
-              }
-            } 
+              } 
+            }"
           }
         }' > \
         pulls.json
