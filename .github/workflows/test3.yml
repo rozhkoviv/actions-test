@@ -102,7 +102,9 @@ jobs:
       - name: Summary status check
         id: summary-status-check
         run: |
-          (echo "${{ needs.tests_stored_results.outputs.result }}" | grep failed) && (echo "failed=true" >> $GITHUB_OUTPUT)
+          echo "${{ needs.tests_stored_results.outputs.result }}" | grep -q failed \
+          && echo "failed=true" >> $GITHUB_OUTPUT \
+          || echo 
       - name: Update status
         run: |
           curl --request POST \
