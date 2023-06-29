@@ -99,22 +99,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: ${{ github.event.client_payload.sha }}
-      - name: Extract stored results
-        run: |
-          echo "${{ needs.tests_stored_results.outputs.result }}" > ./tests_stored_results.json
       - name: Summary status check
-        uses: actions/github-script@v6
         id: summary-status-check
-        with:
-          script: |
-            const results = require('./tests_stored_results.json')
-            const hasFailed = Object.values(results.status).some(status => status === 'failed')
-            if (hasFailed) {
-              core.setOutput('failed', 'true')
-            }
-      - name: Test
         run: |
-          cat ./results.json
+          echo "${{ needs.tests_stored_results.outputs.result }}" | grep failed && echo "failed=true" >> $GITHUB_OUTPUT
       - name: Update status
         run: |
           curl --request POST \
