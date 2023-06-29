@@ -11,6 +11,23 @@ jobs:
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
+    - name: Get branch pull requests
+      run: |
+        curl -X POST https://api.github.com/graphql \
+        -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+        -H "Content-Type: application/json" \
+        -d '{"query":"{repository(owner:\"${{ github.repository_owner }}\",name:\"${{ github.event.repository.name }}\"){pullRequests(first: 1,headRefName:\"${{ github.ref_name}}\",states:[OPEN],orderBy:{field:CREATED_AT, direction:DESC}){nodes{number}}}}"}' > \
+        pulls.json
+    - name: Parse pull requests
+      id: pr-number-parse
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const pulls = require('./pulls.json')
+          const lastPull = pulls.data.repository.pullRequests.nodes.shift()
+          if (lastPull) {
+            core.setOutput('pr_number', String(lastPull.number))
+          }
     - name: Checkout to target
       uses: actions/checkout@v3
       with:
@@ -61,27 +78,6 @@ jobs:
           "description": "e2e tests failed",
           "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         }'
-    - name: Checkout to target
-      uses: actions/checkout@v3
-      with:
-        ref: 'master'
-    - name: Get branch pull requests
-      run: |
-        curl -X POST https://api.github.com/graphql \
-        -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-        -H "Content-Type: application/json" \
-        -d '{"query":"{repository(owner:\"${{ github.repository_owner }}\",name:\"${{ github.event.repository.name }}\"){pullRequests(first: 1,headRefName:\"${{ github.ref_name}}\",states:[OPEN],orderBy:{field:CREATED_AT, direction:DESC}){nodes{number}}}}"}' > \
-        pulls.json
-    - name: Parse pull requests
-      id: pr-number-parse
-      uses: actions/github-script@v6
-      with:
-        script: |
-          const pulls = require('./pulls.json')
-          const lastPull = pulls.data.repository.pullRequests.nodes.shift()
-          if (lastPull) {
-            core.setOutput('pr_number', String(lastPull.number))
-          }
     - name: debug
       env:
         PR_NUMBER_TEST: ${{ steps.pr-number-parse.outputs.pr_number }}
