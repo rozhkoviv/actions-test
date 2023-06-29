@@ -76,7 +76,7 @@ jobs:
         matrix-step-name: ${{ github.job }}
         matrix-key: ${{ matrix.shard }}
         outputs: |-
-          status: ${{ (steps.store-failed-flag.outputs.failed && 'failed') || 'success' }}
+          status: "${{ (steps.store-failed-flag.outputs.failed && 'failed') || 'success' }}"
   tests_stored_results:
     if: ${{ always() }}
     runs-on: ubuntu-latest
@@ -101,7 +101,17 @@ jobs:
           ref: ${{ github.event.client_payload.sha }}
       - name: Extract stored results
         run: |
-          echo "${{ needs.tests_stored_results.outputs.result }}" > ./results.json
+          echo "${{ needs.tests_stored_results.outputs.result }}" > ./tests_stored_results.json
+      - name: Summary status check
+        uses: actions/github-script@v6
+        id: summary-status-check
+        with:
+          script: |
+            const results = require('./tests_stored_results.json')
+            const hasFailed = Object.values(results.status).some(status => status === 'failed')
+            if (hasFailed) {
+              core.setOutput('failed', 'true')
+            }
       - name: Test
         run: |
           cat ./results.json
@@ -113,8 +123,8 @@ jobs:
           --header 'Content-Type: application/json' \
           --data '{
             "context": "e2e_tests",
-            "state": "${{ (needs.e2e_tests.outputs.failed && 'failure') || 'success' }}",
-            "description": "${{ (needs.e2e_tests.outputs.failed && 'failure') || 'success' }}",
+            "state": "${{ (steps.summary-status-check.outputs.failed && 'failure') || 'success' }}",
+            "description": "${{ (steps.summary-status-check.outputs.failed && 'failure') || 'success' }}",
             "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           }'
       
