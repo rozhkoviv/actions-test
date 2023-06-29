@@ -61,10 +61,6 @@ jobs:
           "description": "e2e tests failed",
           "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         }'
-    - name: Checkout to master
-      uses: actions/checkout@v3
-      with:
-        ref: 'master'
     - name: Get branch pull requests
       run: |
         curl -X POST https://api.github.com/graphql \
@@ -82,6 +78,11 @@ jobs:
           if (lastPull) {
             core.setOutput('pr_number', String(lastPull.number))
           }
+    - name: debug
+      env:
+        PR_NUMBER_TEST: ${{ steps.pr-number-parse.outputs.pr_number }}
+      run: \
+        echo $PR_NUMBER_TEST
     - name: Update comment on success
       if: steps.pr-number-parse.outputs.pr_number && ${{ success() }}
       uses: thollander/actions-comment-pull-request@v2
