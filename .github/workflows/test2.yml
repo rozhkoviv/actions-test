@@ -5,7 +5,8 @@ on: [push]
 jobs:
   precheck:
     runs-on: ubuntu-latest
-    permissions: write-all
+    permissions:
+      statuses: write
     steps:
       - name: Update check status
         run: |
