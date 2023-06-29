@@ -61,6 +61,10 @@ jobs:
           "description": "e2e tests failed",
           "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         }'
+    - name: Checkout to target
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ github.event.client_payload.sha }}
     - name: Get branch pull requests
       run: |
         curl -X POST https://api.github.com/graphql \
@@ -84,7 +88,7 @@ jobs:
       run: |
         echo $PR_NUMBER_TEST
     - name: Update comment on success
-      if: steps.pr-number-parse.outputs.pr_number && ${{ success() }}
+      if: ${{ steps.pr-number-parse.outputs.pr_number && success() }}
       uses: thollander/actions-comment-pull-request@v2
       with:
         comment_tag: e2e_tests_comment
@@ -92,7 +96,7 @@ jobs:
         message: |
           Tests passed!
     - name: Update comment on failure
-      if: steps.pr-number-parse.outputs.pr_number && ${{ failure() }}
+      if: ${{ steps.pr-number-parse.outputs.pr_number && failure() }}
       uses: thollander/actions-comment-pull-request@v2
       with:
         comment_tag: e2e_tests_comment
