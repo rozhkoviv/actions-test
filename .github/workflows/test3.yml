@@ -51,3 +51,16 @@ jobs:
         pr_number: ${{ steps.pr-number-parse.outputs.pr_number }}
         message: |
           Tests passed!
+    - name: Update check status
+      if: ${{ success() }}
+      run: |
+        curl --request POST \
+        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+        --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
+        --header 'content-type: application/json' \
+        --data '{
+          "context": "tests",
+          "state": "success",
+          "description": "Staging tests passed",
+          "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        }'
