@@ -14,7 +14,7 @@ jobs:
     - name: Update check status
       run: |
         curl --request POST \
-        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.client_payload.sha }} \
         --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
         --header 'content-type: application/json' \
         --data '{
@@ -67,7 +67,7 @@ jobs:
       if: ${{ success() }}
       run: |
         curl --request POST \
-        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.client_payload.sha }} \
         --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
         --header 'content-type: application/json' \
         --data '{
@@ -80,7 +80,7 @@ jobs:
       if: ${{ failure() }}
       run: |
         curl --request POST \
-        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
+        --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.event.client_payload.sha }} \
         --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' \
         --header 'content-type: application/json' \
         --data '{
