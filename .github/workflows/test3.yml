@@ -70,6 +70,7 @@ jobs:
       run: |
         echo "failed=true" >> $GITHUB_OUTPUT
     - uses: cloudposse/github-action-matrix-outputs-write@main
+      if: ${{ always() }}
       id: out
       with:
         matrix-step-name: ${{ github.job }}
