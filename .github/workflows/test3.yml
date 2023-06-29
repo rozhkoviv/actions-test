@@ -9,6 +9,7 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    permissions: write-all
     steps:
     - name: Debug
       env:
