@@ -21,10 +21,18 @@ jobs:
         with:
           script: |
             const data = require('./statuses.json')
-            const tests = data.statuses.find(s => s.context === 'e2e_tests')
-            if (tests.description.startsWith('Expected')) {
-              core.setOutput('update_flag', 'true')
+            core.setOutput('test', JSON.stringify(data))
+            if (false) {
+              const tests = data.statuses.find(s => s.context === 'e2e_tests')
+              if (tests.description.startsWith('Expected')) {
+                core.setOutput('update_flag', 'true')
+              }
             }
+      - name: Debug
+        env:
+          DEBUG_TEST: ${{ steps.commit-status-check.outputs.test }}
+        run: |
+          echo $DEBUG_TEST
       - name: Update check status
         if: ${{ steps.commit-status-check.outputs.update_flag }}
         run: |
