@@ -8,7 +8,25 @@ jobs:
     permissions:
       statuses: write
     steps:
+      - name: Check e2e_tests status
+        run: |
+          curl -L \
+          --header 'accept: application/vnd.github+json' \
+          --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}'\
+          --url https://api.github.com/repos/${{ github.repository }}/commits/${{ github.sha }}/status \
+          > statuses.json
+      - name: Parse statuses
+        id: commit-status-check
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const data = require('./statuses.json')
+            const tests = data.statuses.find(s => s.context === 'e2e_tests')
+            if (tests.description.startsWith('Expected')) {
+              core.setOutput('update_flag', 'true')
+            }
       - name: Update check status
+        if: ${{ steps.commit-status-check.outputs.update_flag }}
         run: |
           curl --request POST \
           --url https://api.github.com/repos/${{ github.repository }}/statuses/${{ github.sha }} \
@@ -17,6 +35,6 @@ jobs:
           --data '{
             "context": "e2e_tests",
             "state": "success",
-            "description": "e2e skipped!",
+            "description": "Skipped",
             "target_url": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           }'
