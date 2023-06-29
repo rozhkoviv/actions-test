@@ -17,21 +17,20 @@ jobs:
         CURRENT_REPOSITORY: ${{ github.event.repository.name }}
         CURRENT_REPOSITORY_OWNER: ${{ github.repository_owner }}
       run: |
-        curl -i -X POST https://api.github.com/graphql \
+        curl -L -X POST https://api.github.com/graphql \
         -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
         -H "Content-Type: application/json" \
         --data-raw '{
           "query":
             "{
-              repository(owner:\""$CURRENT_REPOSITORY_OWNER"\", name:\""$CURRENT_REPOSITORY"\") {
-                pullRequests (first: 1, headRefName:\""$HEAD_REF_NAME"\", states:[OPEN]) {
+              repository(owner:\"${{ github.repository_owner }}\", name:\"${{ github.event.repository.name }}\") {
+                pullRequests (first: 1, headRefName:\"${{ github.ref_name}}\", states:[OPEN]) {
                   nodes {
                     id
                   }
                 }
               } 
             }"
-          }
         }' > \
         pulls.json
     - name: output
