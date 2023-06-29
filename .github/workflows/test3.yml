@@ -11,8 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Debug
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
       run: |
-        echo ${{ toJson(github) }}
+        echo "$GITHUB_CONTEXT"
     - name: Update status
       if: github.event.client_payload.pr_number
       uses: thollander/actions-comment-pull-request@v2
