@@ -40,7 +40,8 @@ jobs:
   #       echo "$GITHUB_CONTEXT"
   run_tests:
     if: github.event.inputs.run_tests == 'true'
-    permissions: write-all
+    permissions:
+      actions: write
     runs-on: ubuntu-latest
     steps:
     - name: Trigger Action B
