@@ -20,25 +20,34 @@ jobs:
         curl -X POST https://api.github.com/graphql \
         -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
         -H "Content-Type: application/json" \
-        -d '{"query":"{repository(owner:\"${{ github.repository_owner }}\",name:\"${{ github.event.repository.name }}\"){pullRequests(first: 1,headRefName:\"${{ github.ref_name}}\",states:[OPEN]){nodes{number}}}}"}' > \
+        -d '{"query":"{repository(owner:\"${{ github.repository_owner }}\",name:\"${{ github.event.repository.name }}\"){pullRequests(first: 1,headRefName:\"${{ github.ref_name}}\",states:[OPEN],orderBy:{field:CREATED_AT, direction:DESC}){nodes{number}}}}"}' > \
         pulls.json
-    - name: output
-      run: cat pulls.json
+    - name: Parse pull requests
+      id: pr-number-parse
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const pulls = require('./pulls.json')
+          const lastPull = pulls.data.repository.pullRequests.nodes.shift()
+          if (lastPull) {
+            core.setOutput('pr_number', String(lastPull.number))
+          }
     - name: Update status
-      if: github.event.client_payload.pr_number
+      if: steps.pr-number-parse.outputs.pr_number
       uses: thollander/actions-comment-pull-request@v2
       with:
-        pr_number: ${{ github.event.client_payload.pr_number }}
+        comment_tag: e2e_tests
+        pr_number: ${{ steps.pr-number-parse.outputs.pr_number }}
         message: |
           Tests running ...
     - name: Test 3
       run: |
         echo "${{ github.event.client_payload.env }}"
     - name: Update status
-      # if: github.event.client_payload.pr_number
+      if: steps.pr-number-parse.outputs.pr_number
       uses: thollander/actions-comment-pull-request@v2
       with:
         comment_tag: e2e_tests
-        pr_number: 1
+        pr_number: ${{ steps.pr-number-parse.outputs.pr_number }}
         message: |
           Tests passed!
