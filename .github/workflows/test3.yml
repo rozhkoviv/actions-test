@@ -48,7 +48,7 @@ jobs:
       if: steps.pr-number-parse.outputs.pr_number
       uses: thollander/actions-comment-pull-request@v2
       with:
-        comment_tag: e2e_tests_comment
+        comment_tag: e2e_tests_com
         pr_number: ${{ steps.pr-number-parse.outputs.pr_number }}
         message: |
           Tests running ...
