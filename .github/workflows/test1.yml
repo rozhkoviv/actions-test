@@ -47,4 +47,4 @@ jobs:
       uses: peter-evans/repository-dispatch@v2
       with:
         event-type: run_tests
-        client-payload: '{ "env": "stage_${{ github.event.inputs.stage }}", "sha": "${{ github.sha }}" }'
+        client-payload: '{ "env": "stage_${{ github.event.inputs.stage }}", "sha": "${{ github.sha }}", "ref": "${{ github.ref }}" }'
