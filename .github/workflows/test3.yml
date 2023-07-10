@@ -46,6 +46,7 @@ jobs:
           echo "base_job_url -> ${{ steps.choose-dir-name.outputs.base_job_url }}"
           echo "base_report_url -> ${{ steps.choose-dir-name.outputs.base_report_url }}"
           echo "base_results_url -> ${{ steps.choose-dir-name.outputs.base_results_url }}"
+          echo "${{ toJson(github) }}"
     outputs:
       upload_dir_name: ${{ steps.choose-dir-name.outputs.upload_dir_name }}
       branch_name: ${{ steps.choose-dir-name.outputs.branch_name }}
