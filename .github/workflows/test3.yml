@@ -17,6 +17,42 @@ env:
   TEST_TEST: ${{ github.event.inputs.test_name || github.event.client_payload.env }}
 
 jobs:
+  before-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout to target
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.client_payload.sha }}
+      - name: Choose dir name
+        id: choose-dir-name
+        run: |
+          datetime=`date +%Y-%m-%d/%H-%M-%S`
+          branch=`echo ${GITHUB_HEAD_REF:-$GITHUB_REF} | sed '1s|^refs/heads/||' | sed 's/^$/unknown/'`
+          branch_sanitized=`echo $branch | tr ':#?/' '-'`
+          upload_dir_name=$TEST_ENV/$branch_sanitized/$datetime/$GITHUB_SHA
+          base_job_url=${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          base_report_url=https://tests.onlineschool.cc/playwright-report/$upload_dir_name
+          base_results_url=https://tests.onlineschool.cc/traces/$upload_dir_name
+          echo "upload_dir_name=${upload_dir_name}" >> $GITHUB_OUTPUT
+          echo "branch_name=${branch}" >> $GITHUB_OUTPUT
+          echo "base_job_url=${base_job_url}" >> $GITHUB_OUTPUT
+          echo "base_report_url=${base_report_url}" >> $GITHUB_OUTPUT
+          echo "base_results_url=${base_results_url}" >> $GITHUB_OUTPUT
+      - name: Get Others
+        run: |
+          echo "upload_dir_name -> ${{ steps.choose-dir-name.outputs.upload_dir_name }}"
+          echo "branch_name -> ${{ steps.choose-dir-name.outputs.branch_name }}"
+          echo "base_job_url -> ${{ steps.choose-dir-name.outputs.base_job_url }}"
+          echo "base_report_url -> ${{ steps.choose-dir-name.outputs.base_report_url }}"
+          echo "base_results_url -> ${{ steps.choose-dir-name.outputs.base_results_url }}"
+    outputs:
+      upload_dir_name: ${{ steps.choose-dir-name.outputs.upload_dir_name }}
+      branch_name: ${{ steps.choose-dir-name.outputs.branch_name }}
+      base_job_url: ${{ steps.choose-dir-name.outputs.base_job_url }}
+      base_report_url: ${{ steps.choose-dir-name.outputs.base_report_url }}
+      base_results_url: ${{ steps.choose-dir-name.outputs.base_results_url }}
+
   e2e_tests:
     runs-on: ubuntu-latest
     permissions: write-all
